@@ -1,0 +1,57 @@
+name: "Tag SemVer"
+description: "Use Semantic Versioning to tag the commit"
+
+inputs:
+  gitversion-version-spec:
+    description: "GitVersion version spec"
+    required: false
+    default: "6.0.x"
+  push:
+    description: "Push SemVer tag to GitHub"
+    required: false
+    default: "false"
+  use-config-file:
+    description: "Use GitVersion configuration file"
+    required: false
+    default: "false"
+  config-file-path:
+    description: "Path to GitVersion configuration file"
+    required: false
+    default: "gitversion.yml"
+
+outputs:
+  version:
+    description: "Semantic version"
+    value: ${{ steps.version.outputs.version }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v2.0.1
+      with:
+        versionSpec: ${{ inputs.gitversion-version-spec }}
+
+    - name: Show GitVersion
+      id: show-gitversion
+      uses: gittools/actions/gitversion/execute@v2.0.1
+      with:
+        useConfigFile: ${{ inputs.use-config-file }}
+        configFilePath: ${{ inputs.config-file-path }}
+
+    - name: Push SemVer tag to GitHub
+      if: ${{ inputs.push == "true" }}
+      shell: bash
+      id: version
+      run: |
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "GitHub Actions Bot"
+        if [ "${{ github.ref }}" == "refs/heads/prod" ]; then
+          echo "version=${{ steps.show-gitversion.outputs.majorMinorPatch }}" >> $GITHUB_OUTPUT
+          git tag -f ${{ steps.show-gitversion.outputs.majorMinorPatch }}
+          git push origin ${{ steps.show-gitversion.outputs.majorMinorPatch }} --force
+        else
+          echo "version=${{ steps.show-gitversion.outputs.semVer }}" >> $GITHUB_OUTPUT
+          git tag -f ${{ steps.show-gitversion.outputs.semVer }}
+          git push origin ${{ steps.show-gitversion.outputs.semVer }} --force
+        fi
