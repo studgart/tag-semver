@@ -1,6 +1,10 @@
 name: "Tag SemVer"
 description: "Use Semantic Versioning to tag the commit"
 
+branding:
+  icon: "anchor"
+  color: "blue"
+
 inputs:
   gitversion-version-spec:
     description: "GitVersion version spec"
