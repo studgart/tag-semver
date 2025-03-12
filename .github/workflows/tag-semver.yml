@@ -1,0 +1,47 @@
+name: 'Automated Semver Tagging'
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  tag-semver:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v2.0.1
+        with:
+          versionSpec: '6.0.x'
+
+      - name: Show GitVersion
+        id: show-gitversion
+        uses: gittools/actions/gitversion/execute@v2.0.1
+        with:
+          useConfigFile: true
+          configFilePath: gitversion.yml
+
+      - name: Push SemVer tag to GitHub
+        shell: bash
+        id: version
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Actions Bot"
+          MajorMinorPatch='v${{ steps.show-gitversion.outputs.majorMinorPatch }}'
+          MajorMinor='v${{ steps.show-gitversion.outputs.major }}.${{ steps.show-gitversion.outputs.minor }}'
+          Major='v${{ steps.show-gitversion.outputs.major }}'
+          git tag -f $MajorMinorPatch
+          git push origin $MajorMinorPatch --force
+          git tag -f $MajorMinor
+          git push origin $MajorMinor --force
+          git tag -f $Major
+          git push origin $Major --force
