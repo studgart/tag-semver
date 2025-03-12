@@ -1,31 +1,31 @@
-name: "Tag SemVer"
-description: "Use Semantic Versioning to tag the commit"
+name: 'Tag SemVer'
+description: 'Use Semantic Versioning to tag the commit'
 
 branding:
-  icon: "anchor"
-  color: "blue"
+  icon: 'anchor'
+  color: 'blue'
 
 inputs:
   gitversion-version-spec:
-    description: "GitVersion version spec"
+    description: 'GitVersion version spec'
     required: false
-    default: "6.0.x"
+    default: '6.0.x'
   push:
-    description: "Push SemVer tag to GitHub"
+    description: 'Push SemVer tag to GitHub'
     required: false
-    default: "false"
+    default: 'false'
   use-config-file:
-    description: "Use GitVersion configuration file"
+    description: 'Use GitVersion configuration file'
     required: false
-    default: "false"
+    default: 'false'
   config-file-path:
-    description: "Path to GitVersion configuration file"
+    description: 'Path to GitVersion configuration file'
     required: false
-    default: "gitversion.yml"
+    default: 'gitversion.yml'
 
 outputs:
   version:
-    description: "Semantic version"
+    description: 'Semantic version'
     value: ${{ steps.version.outputs.version }}
 
 runs:
@@ -44,7 +44,7 @@ runs:
         configFilePath: ${{ inputs.config-file-path }}
 
     - name: Push SemVer tag to GitHub
-      if: ${{ inputs.push == "true" }}
+      if: ${{ inputs.push == 'true' }}
       shell: bash
       id: version
       run: |
